@@ -87,27 +87,42 @@ edge-cloud/
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend Shell | Angular 17, Webpack 5 Module Federation |
-| Micro-frontends | Angular 17, @angular-architects/module-federation |
+| Frontend | Angular 17 (monolith, micro-frontend ready) |
 | Backend API | Python 3.11+, FastAPI, Uvicorn |
 | K8s Client | kubernetes (Python client) |
 | Database | SQLAlchemy + SQLite (dev) / PostgreSQL (prod) |
 | Real-time | WebSocket (FastAPI WebSocket) |
 | Containerization | Docker, Docker Compose |
 
+## Features
+
+| Module | Chức năng |
+|--------|-----------|
+| Dashboard | Tổng quan clusters, stats (total, connected, errors, nodes) |
+| Cluster Management | Add/Edit/Delete cluster, Health Check (animated), Node details |
+| Namespace Management | Create/Edit/Delete namespace, Labels, Annotations, Resource Quota, RBAC RoleBindings |
+| Workload Management | List Deployments/StatefulSets/DaemonSets, Deploy new workload, Scale, Delete |
+
 ## API Endpoints
 
 ### Clusters
 - `GET /api/clusters` - List all clusters
 - `POST /api/clusters` - Add a new cluster
+- `PATCH /api/clusters/{id}` - Update cluster info
 - `DELETE /api/clusters/{id}` - Remove a cluster
-- `GET /api/clusters/{id}/health` - Health check a cluster
+- `GET /api/clusters/{id}/health` - Health check (nodes, components, version)
 - `WS /api/clusters/ws/health` - Real-time health updates
 
 ### Namespaces
 - `GET /api/clusters/{id}/namespaces` - List namespaces
+- `GET /api/clusters/{id}/namespaces/{name}` - Get namespace detail (labels, annotations, quota, RBAC)
 - `POST /api/clusters/{id}/namespaces` - Create namespace
+- `PATCH /api/clusters/{id}/namespaces/{name}` - Update labels/annotations
 - `DELETE /api/clusters/{id}/namespaces/{name}` - Delete namespace
+- `POST /api/clusters/{id}/namespaces/{name}/resource-quota` - Set resource quota
+- `DELETE /api/clusters/{id}/namespaces/{name}/resource-quota` - Remove resource quota
+- `POST /api/clusters/{id}/namespaces/{name}/role-bindings` - Create RBAC RoleBinding
+- `DELETE /api/clusters/{id}/namespaces/{name}/role-bindings/{rb}` - Delete RoleBinding
 
 ### Workloads
 - `GET /api/clusters/{id}/namespaces/{ns}/workloads` - List workloads

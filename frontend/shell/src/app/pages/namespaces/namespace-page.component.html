@@ -1,0 +1,157 @@
+<div class="page-header">
+  <h2>Namespace Management</h2>
+</div>
+
+<!-- Cluster Selector -->
+<div class="selector-bar">
+  <div class="selector-group">
+    <label>Cluster</label>
+    <select [(ngModel)]="selectedClusterId" (ngModelChange)="onClusterChange()">
+      <option [ngValue]="null">Select cluster...</option>
+      <option *ngFor="let c of clusters" [ngValue]="c.id">{{ c.name }}</option>
+    </select>
+  </div>
+  <button class="btn btn-primary" *ngIf="selectedClusterId" (click)="showCreateForm = !showCreateForm">
+    <span class="material-icons">add</span> Create Namespace
+  </button>
+</div>
+
+<!-- Create Form -->
+<div class="card" *ngIf="showCreateForm" style="margin-bottom:16px;">
+  <h3>Create Namespace</h3>
+  <div class="form-group"><label>Name *</label><input type="text" [(ngModel)]="newNs.name" placeholder="my-namespace" /></div>
+  <div class="form-group"><label>Labels (key=value, one per line)</label><textarea [(ngModel)]="newNs.labels" rows="3" placeholder="env=production&#10;team=backend"></textarea></div>
+  <div class="form-group"><label>Annotations (key=value, one per line)</label><textarea [(ngModel)]="newNs.annotations" rows="3" placeholder="description=My namespace"></textarea></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" (click)="showCreateForm=false">Cancel</button>
+    <button class="btn btn-primary" (click)="createNamespace()" [disabled]="!newNs.name || creating">{{ creating ? 'Creating...' : 'Create' }}</button>
+  </div>
+  <div class="error-msg" *ngIf="createError">{{ createError }}</div>
+</div>
+
+<!-- Edit Form -->
+<div class="card" *ngIf="showEditForm && editNs" style="margin-bottom:16px;">
+  <h3>Edit "{{ editNs.name }}"</h3>
+  <div class="form-group"><label>Labels (key=value, one per line)</label><textarea [(ngModel)]="editLabels" rows="4"></textarea></div>
+  <div class="form-group"><label>Annotations (key=value, one per line)</label><textarea [(ngModel)]="editAnnotations" rows="4"></textarea></div>
+  <div class="form-actions">
+    <button class="btn btn-outline" (click)="showEditForm=false">Cancel</button>
+    <button class="btn btn-primary" (click)="saveEdit()" [disabled]="editing">{{ editing ? 'Saving...' : 'Save' }}</button>
+  </div>
+</div>
+
+<!-- Namespace List -->
+<div class="card" *ngIf="selectedClusterId && !detailNs">
+  <table class="table" *ngIf="namespaces.length > 0 && !loading">
+    <thead><tr><th>Name</th><th>Status</th><th>Labels</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let ns of namespaces">
+        <td class="mono">{{ ns.name }}</td>
+        <td><span class="status-badge" [ngClass]="ns.status === 'Active' ? 'active' : 'terminating'">{{ ns.status }}</span></td>
+        <td><span class="label-tag" *ngFor="let k of objectKeys(ns.labels) | slice:0:3">{{ k }}={{ ns.labels[k] }}</span></td>
+        <td class="actions-cell">
+          <button class="btn btn-sm btn-outline" (click)="viewDetail(ns)" title="Detail"><span class="material-icons">visibility</span></button>
+          <button class="btn btn-sm btn-outline" (click)="openEdit(ns)" title="Edit" [disabled]="isProtected(ns.name)"><span class="material-icons">edit</span></button>
+          <button class="btn btn-sm btn-danger" (click)="deleteNs(ns)" [disabled]="isProtected(ns.name)" title="Delete"><span class="material-icons">delete</span></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="loading" *ngIf="loading">Loading namespaces...</div>
+  <div class="empty-sm" *ngIf="namespaces.length === 0 && !loading">No namespaces found.</div>
+</div>
+
+<!-- Detail View -->
+<div class="detail-view" *ngIf="detailNs">
+  <div class="detail-header">
+    <button class="btn btn-outline" (click)="closeDetail()"><span class="material-icons">arrow_back</span> Back</button>
+    <h2>{{ detailNs.name }}</h2>
+    <span class="status-badge" [ngClass]="detailNs.status === 'Active' ? 'active' : 'terminating'">{{ detailNs.status }}</span>
+  </div>
+
+  <div class="detail-grid">
+    <!-- Labels & Annotations -->
+    <div class="section-card">
+      <h3><span class="material-icons">label</span> Labels</h3>
+      <div class="kv-grid" *ngIf="objectKeys(detailNs.labels).length > 0">
+        <div class="kv-row" *ngFor="let k of objectKeys(detailNs.labels)"><span class="kv-key">{{ k }}</span><span class="kv-val">{{ detailNs.labels[k] }}</span></div>
+      </div>
+      <p class="muted" *ngIf="objectKeys(detailNs.labels).length === 0">No labels</p>
+
+      <h3 style="margin-top:16px;"><span class="material-icons">notes</span> Annotations</h3>
+      <div class="kv-grid" *ngIf="objectKeys(detailNs.annotations).length > 0">
+        <div class="kv-row" *ngFor="let k of objectKeys(detailNs.annotations)"><span class="kv-key">{{ k }}</span><span class="kv-val">{{ detailNs.annotations[k] }}</span></div>
+      </div>
+      <p class="muted" *ngIf="objectKeys(detailNs.annotations).length === 0">No annotations</p>
+    </div>
+
+    <!-- Resource Quota -->
+    <div class="section-card">
+      <div class="section-header"><h3><span class="material-icons">data_usage</span> Resource Quota</h3>
+        <button class="btn btn-sm btn-outline" (click)="openQuotaForm()"><span class="material-icons">edit</span></button>
+      </div>
+      <div *ngIf="detailNs.resource_quota" class="quota-info">
+        <div class="quota-row" *ngFor="let k of objectKeys(detailNs.resource_quota.hard)">
+          <span>{{ k }}</span>
+          <span>{{ detailNs.resource_quota.used?.[k] || '0' }} / {{ detailNs.resource_quota.hard[k] }}</span>
+        </div>
+        <button class="btn btn-sm btn-danger" style="margin-top:12px;" (click)="deleteQuota()"><span class="material-icons">delete</span> Remove Quota</button>
+      </div>
+      <p class="muted" *ngIf="!detailNs.resource_quota">No resource quota configured.</p>
+    </div>
+  </div>
+
+  <!-- Quota Form -->
+  <div class="card" *ngIf="showQuotaForm" style="margin-top:16px;">
+    <h3>Set Resource Quota</h3>
+    <div class="form-grid-sm">
+      <div class="form-group"><label>CPU Requests</label><input [(ngModel)]="quotaData.cpu_requests" placeholder="e.g., 4" /></div>
+      <div class="form-group"><label>CPU Limits</label><input [(ngModel)]="quotaData.cpu_limits" placeholder="e.g., 8" /></div>
+      <div class="form-group"><label>Memory Requests</label><input [(ngModel)]="quotaData.memory_requests" placeholder="e.g., 4Gi" /></div>
+      <div class="form-group"><label>Memory Limits</label><input [(ngModel)]="quotaData.memory_limits" placeholder="e.g., 8Gi" /></div>
+      <div class="form-group"><label>Max Pods</label><input [(ngModel)]="quotaData.pods" placeholder="e.g., 20" /></div>
+      <div class="form-group"><label>Max Services</label><input [(ngModel)]="quotaData.services" placeholder="e.g., 10" /></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-outline" (click)="showQuotaForm=false">Cancel</button><button class="btn btn-primary" (click)="saveQuota()" [disabled]="settingQuota">{{ settingQuota ? 'Saving...' : 'Apply Quota' }}</button></div>
+  </div>
+
+  <!-- RBAC Section -->
+  <div class="section-card" style="margin-top:16px;">
+    <div class="section-header"><h3><span class="material-icons">security</span> Role Bindings (RBAC)</h3>
+      <button class="btn btn-sm btn-primary" (click)="openRbacForm()"><span class="material-icons">add</span></button>
+    </div>
+    <table class="table" *ngIf="detailNs.role_bindings.length > 0">
+      <thead><tr><th>Name</th><th>Role</th><th>Subjects</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let rb of detailNs.role_bindings">
+          <td class="mono">{{ rb.name }}</td>
+          <td>{{ rb.role_kind }}/{{ rb.role_name }}</td>
+          <td><span *ngFor="let s of rb.subjects" class="label-tag">{{ s.kind }}:{{ s.name }}</span></td>
+          <td><button class="btn btn-sm btn-danger" (click)="deleteRoleBinding(rb.name)"><span class="material-icons">delete</span></button></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="muted" *ngIf="detailNs.role_bindings.length === 0">No role bindings.</p>
+  </div>
+
+  <!-- RBAC Form -->
+  <div class="card" *ngIf="showRbacForm" style="margin-top:16px;">
+    <h3>Create Role Binding</h3>
+    <div class="form-grid-sm">
+      <div class="form-group"><label>Binding Name</label><input [(ngModel)]="rbacData.name" placeholder="my-binding" /></div>
+      <div class="form-group"><label>Role Kind</label><select [(ngModel)]="rbacData.role_kind"><option value="ClusterRole">ClusterRole</option><option value="Role">Role</option></select></div>
+      <div class="form-group"><label>Role Name</label><input [(ngModel)]="rbacData.role_name" placeholder="admin, edit, view..." /></div>
+      <div class="form-group"><label>Subject Kind</label><select [(ngModel)]="rbacData.subject_kind"><option value="ServiceAccount">ServiceAccount</option><option value="User">User</option><option value="Group">Group</option></select></div>
+      <div class="form-group"><label>Subject Name</label><input [(ngModel)]="rbacData.subject_name" placeholder="my-sa" /></div>
+      <div class="form-group"><label>Subject Namespace</label><input [(ngModel)]="rbacData.subject_namespace" placeholder="(for ServiceAccount)" /></div>
+    </div>
+    <div class="form-actions"><button class="btn btn-outline" (click)="showRbacForm=false">Cancel</button><button class="btn btn-primary" (click)="createRoleBinding()" [disabled]="creatingRbac || !rbacData.name || !rbacData.role_name || !rbacData.subject_name">{{ creatingRbac ? 'Creating...' : 'Create Binding' }}</button></div>
+  </div>
+</div>
+
+<!-- Empty state -->
+<div class="empty-state" *ngIf="!selectedClusterId">
+  <span class="material-icons">folder_open</span>
+  <h3>Select a Cluster</h3>
+  <p>Choose a cluster above to manage its namespaces.</p>
+</div>

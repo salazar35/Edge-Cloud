@@ -12,6 +12,7 @@ import { HeaderComponent } from './layout/header/header.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ClusterListComponent } from './pages/clusters/cluster-list.component';
 import { WorkloadPageComponent } from './pages/workloads/workload-page.component';
+import { NamespacePageComponent } from './pages/namespaces/namespace-page.component';
 import { APP_ROUTES } from './app.routes';
 
 @NgModule({
@@ -23,6 +24,7 @@ import { APP_ROUTES } from './app.routes';
     DashboardComponent,
     ClusterListComponent,
     WorkloadPageComponent,
+    NamespacePageComponent,
   ],
   imports: [
     BrowserModule,

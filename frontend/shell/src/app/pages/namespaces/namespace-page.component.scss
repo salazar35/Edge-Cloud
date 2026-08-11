@@ -1,0 +1,57 @@
+.page-header { margin-bottom: 24px; h2 { font-size: 24px; font-weight: 600; } }
+.selector-bar { display: flex; gap: 16px; align-items: flex-end; margin-bottom: 20px; background: #16213e; border: 1px solid #2a3a5e; border-radius: 12px; padding: 16px 20px; }
+.selector-group { display: flex; flex-direction: column; gap: 6px; min-width: 200px; }
+.selector-group label { font-size: 11px; color: #b0bec5; text-transform: uppercase; }
+.selector-group select { padding: 8px 12px; background: #1a1a2e; border: 1px solid #2a3a5e; border-radius: 8px; color: #fff; font-size: 14px; }
+.selector-group select:focus { outline: none; border-color: #1976d2; }
+.card { background: #16213e; border: 1px solid #2a3a5e; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.card h3 { margin-bottom: 12px; font-size: 15px; }
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; font-size: 12px; color: #b0bec5; margin-bottom: 4px; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 8px 12px; background: #1a1a2e; border: 1px solid #2a3a5e; border-radius: 8px; color: #fff; font-size: 13px; font-family: inherit; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #1976d2; }
+.form-group textarea { font-family: monospace; font-size: 12px; resize: vertical; }
+.form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 12px; }
+.form-grid-sm { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.error-msg { margin-top: 10px; padding: 8px 12px; background: rgba(244,67,54,0.1); border-radius: 6px; color: #f44336; font-size: 12px; }
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #2a3a5e; font-size: 13px; }
+.table th { font-weight: 600; color: #b0bec5; font-size: 11px; text-transform: uppercase; }
+.mono { font-family: monospace; font-size: 12px; }
+.actions-cell { display: flex; gap: 4px; }
+.label-tag { display: inline-block; padding: 2px 8px; background: rgba(25,118,210,0.1); border-radius: 4px; font-size: 11px; color: #42a5f5; margin-right: 4px; }
+.status-badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+.status-badge.active { background: rgba(76,175,80,0.15); color: #4caf50; }
+.status-badge.terminating { background: rgba(255,152,0,0.15); color: #ff9800; }
+
+.detail-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; h2 { font-size: 22px; flex: 1; } }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.section-card { background: #16213e; border: 1px solid #2a3a5e; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.section-card h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 12px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; h3 { margin-bottom: 0; } }
+
+.kv-grid { font-size: 12px; }
+.kv-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #2a3a5e; }
+.kv-row:last-child { border-bottom: none; }
+.kv-key { color: #b0bec5; font-family: monospace; }
+.kv-val { color: #fff; font-family: monospace; }
+
+.quota-info { font-size: 13px; }
+.quota-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #2a3a5e; }
+.quota-row:last-child { border-bottom: none; }
+
+.muted { color: #b0bec5; font-size: 13px; }
+.loading { text-align: center; padding: 20px; color: #b0bec5; }
+.empty-sm { text-align: center; padding: 20px; color: #b0bec5; }
+.empty-state { text-align: center; padding: 60px; color: #b0bec5; .material-icons { font-size: 64px; color: #2a3a5e; margin-bottom: 16px; } h3 { color: #fff; margin-bottom: 8px; } }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #1976d2; color: white; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-outline { background: transparent; border: 1px solid #2a3a5e; color: #fff; }
+.btn-outline:hover { border-color: #1976d2; }
+.btn-danger { background: rgba(244,67,54,0.15); color: #f44336; border: none; }
+.btn-sm { padding: 6px 10px; font-size: 12px; }
+
+@media (max-width: 768px) { .detail-grid { grid-template-columns: 1fr; } }

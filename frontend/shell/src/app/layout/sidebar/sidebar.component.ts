@@ -125,6 +125,7 @@ export class SidebarComponent {
   navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
     { label: 'Clusters', icon: 'dns', route: '/clusters' },
+    { label: 'Namespaces', icon: 'folder', route: '/namespaces' },
     { label: 'Workloads', icon: 'widgets', route: '/workloads' },
   ];
 }
