@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: edge-cloud-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - EDGE_CLOUD_DATABASE_URL=sqlite+aiosqlite:///./edge_cloud.db
+      - EDGE_CLOUD_DEBUG=true
+    volumes:
+      - ./backend:/app
+      - backend-data:/app/data
+    restart: unless-stopped
+
+  shell:
+    build:
+      context: ./frontend/shell
+      dockerfile: Dockerfile
+    container_name: edge-cloud-shell
+    ports:
+      - "4200:80"
+    depends_on:
+      - mfe-cluster
+      - mfe-workload
+    restart: unless-stopped
+
+  mfe-cluster:
+    build:
+      context: ./frontend/mfe-cluster
+      dockerfile: Dockerfile
+    container_name: edge-cloud-mfe-cluster
+    ports:
+      - "4201:80"
+    restart: unless-stopped
+
+  mfe-workload:
+    build:
+      context: ./frontend/mfe-workload
+      dockerfile: Dockerfile
+    container_name: edge-cloud-mfe-workload
+    ports:
+      - "4202:80"
+    restart: unless-stopped
+
+volumes:
+  backend-data:
